@@ -1,0 +1,83 @@
+﻿@model FileApp.Models.CustomerModel
+
+<h2>Edit Customer</h2>
+
+<form asp-action="Edit" asp-controller="Customer" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="PicturePath" />
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" id="NameInput" />
+        <span asp-validation-for="Name" class="text-danger" id="NameError"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Picture</label><br />
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img id="previewImage"
+                 src="@Url.Content(Model.PicturePath ?? "/images/no-image.png")"
+                 alt="@Model.Name"
+                 style="width: 120px; height: 120px; object-fit: cover; border: 1px solid #ccc;" />
+
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <button type="button" id="changePicBtn" class="btn btn-sm btn-warning">Change Picture</button>
+
+                <button type="button" id="cancelPicBtn" class="btn btn-sm btn-secondary" style="display:none;">Cancel</button>
+            </div>
+        </div>
+
+        <input asp-for="Picture" type="file" id="pictureInput" style="display:none;" accept=".jpg,.jpeg,.png" />
+        <span asp-validation-for="Picture" class="text-danger"></span>
+    </div>
+
+
+    <br />
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-action="Index" class="btn btn-danger">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/form-validation.js"></script>
+
+    <script>document.addEventListener("DOMContentLoaded", function () {
+            const changeBtn = document.getElementById("changePicBtn");
+            const cancelBtn = document.getElementById("cancelPicBtn");
+            const pictureInput = document.getElementById("pictureInput");
+            const previewImage = document.getElementById("previewImage");
+
+            const originalSrc = previewImage.src;
+
+            changeBtn.addEventListener("click", () => {
+                pictureInput.click();
+            });
+
+            pictureInput.addEventListener("change", function () {
+                if (this.files && this.files[0]) {
+                    const fileReader = new FileReader();
+                    fileReader.onload = function (e) {
+                        previewImage.src = e.target.result;
+                    }
+                    fileReader.readAsDataURL(this.files[0]);
+
+                    cancelBtn.style.display = "inline-block";
+                    changeBtn.textContent = "Change Pic";
+                }
+            });
+
+            cancelBtn.addEventListener("click", () => {
+                previewImage.src = originalSrc;
+                pictureInput.value = "";
+                cancelBtn.style.display = "none";
+                changeBtn.textContent = "Change Picture";
+            });
+        });</script>
+}
