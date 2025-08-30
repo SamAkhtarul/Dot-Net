@@ -1,0 +1,212 @@
+﻿@model IEnumerable<TaskManagement.Models.TaskList>
+
+@{
+    ViewData["Title"] = "Task List";
+}
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop">
+   Add New
+    <i class="fa fa-plus" aria-hidden="true"></i>
+</button>
+<table id="tbl" class="table table-bordered">
+    <thead>
+    <tr>
+        <td>Task ID</td>
+        <td>Task Name</td>
+        <td>Description</td>
+        <td>Actions</td>
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+
+   @*  @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Title</td>
+            <td>@item.Description</td>
+            <td>
+                <a asp-action="Edit" asp-controller="TaskList" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Delete" asp-controller="TaskList" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+} *@
+</table>
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Task</h1>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                <div>
+                    <input type="hidden" name="Id"  id="Id" />
+                    <label for="Title">Name:</label>
+                    <input type="text" id="Title" name="Title" class="form-control"   required />
+                </div>
+                <div>
+                    <label for="Description">Description</label>
+                    <input type="text" id="Description" name="Description" class="form-control" required />
+                     
+                    
+                </div>
+                   
+                    
+                   
+                 
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnsave">Save Changes</button>
+                <button type="button" class="btn btn-primary" id="btnUpdate">Update </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function(){
+                    $("#btnsave").show()
+                          $("#btnUpdate").hide()
+        load();
+        $("#btnsave").click(function(){
+            $("#btnsave").disabled=true;
+            var obj={
+              Title:$("#Title").val(),
+              Description:$("#Description").val()
+            }
+            console.log(obj)
+        $.ajax({
+                      url: '/TaskList/Save',
+                      type: 'POST',
+                      data: obj,
+                      success: function (data) {
+                        //  $('table').html(data);
+                        console.log(data);
+                         load();
+                         $("#staticBackdrop").modal('hide')
+        clearAll()
+                      },
+                      error: function (xhr, status, error) {
+                          console.error('Error loading task list:', error);
+                      }
+                  });
+        })//savebutton
+
+
+                 $("#btnUpdate").click(function(){
+                    $("#btnUpdate").disabled=true;
+                var obj={
+                    Id:$("#Id").val(),
+                  Title:$("#Title").val(),
+                  Description:$("#Description").val()
+                }
+                console.log(obj)
+            $.ajax({
+                          url: '/TaskList/Update',
+                          type: 'POST',
+                          data: obj,
+                          success: function (data) {
+                            //  $('table').html(data);
+                            console.log(data);
+                             load();
+                             $("#staticBackdrop").modal('hide')
+            clearAll()
+                          },
+                          error: function (xhr, status, error) {
+                              console.error('Error loading task list:', error);
+                          }
+                      });
+            })//savebutton
+
+        })//document
+        function load(){
+            $.ajax({
+                url: '/TaskList/Get',
+                type: 'GET',
+                success: function (data) {
+                  //  $('table').html(data);
+                  console.log(data);
+                    $('#tbl tbody').empty(); // Clear existing rows
+                    // Build table rows dynamically)
+
+                  var tr="";
+                    $.each(data, function (index, item) {
+                        tr += "<tr>";
+                        tr += "<td>" + item.id + "</td>";
+                        tr += "<td>" + item.title + "</td>";
+                        tr += "<td>" + item.description + "</td>";
+                                tr += "<td><button type='button' class='btn btn-warning'  onclick='Edit("+ item.id + ")' ><i class='fa fa-pencil' aria-hidden='true'></i> </button> | <button type='button' class='btn btn-danger' onclick='Delete("+ item.id + ")' ><i class='fa fa-trash' aria-hidden='true'></i></button></td>";
+                        tr += "</tr>";
+                    });
+                    $('#tbl tbody').html(tr);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading task list:', error);
+                }
+            });
+        }
+
+
+
+        function Edit(id)
+               {
+
+
+                 $.ajax({
+                url: '/TaskList/GetbyId/'+ id,
+                type: 'GET',
+                success: function (data) {
+                  //  $('table').html(data);
+                  console.log(data);
+                  $("#Id").val(data.id),
+                   $("#Title").val(data.title),
+              $("#Description").val(data.description)
+                 $("#staticBackdrop").modal('show')
+                      $("#btnsave").hide()
+                      $("#btnUpdate").show()
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading task list:', error);
+                }
+            });
+
+               }
+    function Delete(id)
+         {
+
+
+                   $.ajax({
+                              url: '/TaskList/Delete/'+ id,
+                              type: 'GET',
+                               
+                              success: function (data) {
+                                //  $('table').html(data);
+                                console.log(data);
+                                 load();
+                               
+                              },
+                              error: function (xhr, status, error) {
+                                  console.error('Error loading task list:', error);
+                              }
+                          });
+         }
+         function clearAll(){
+                 $("#Id").val( ),
+                       $("#Title").val( ),
+                  $("#Description").val( )
+                     $("#staticBackdrop").modal('hide')
+                             $("#btnsave").show()
+                          $("#btnUpdate").hide()
+         }
+    </script>
+
+}

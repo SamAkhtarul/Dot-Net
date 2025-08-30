@@ -1,0 +1,40 @@
+﻿@model IEnumerable<TaskManagement.Models.AssignedTask>
+
+
+@{
+    ViewData["Title"] = "Assigned Tasks";
+}
+
+<a asp-action="Create" asp-controller="TaskAssigned"> Create Task </a>
+
+<table class="table table-bordered">
+    <tr>
+        <td>Task</td>
+        <td>Assigned To</td>
+        <td>Assigned Date</td>
+        <td>Due Date</td>
+        <td>Submit Date</td>
+        <td>Status</td>
+        <td>Remarks</td>
+        <td>Actions</td>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Task.Title</td>
+            <td>@item.User.Name</td>
+            <td>@item.AssignedDate.ToString("dd/MM/yyyy")</td>
+            <td>@item.DueDate.ToString("dd/MM/yyyy")</td>
+            <td>@item.SubmitDate.ToString("dd/MM/yyyy")</td>
+            <td>@item.Status</td>
+            <td>@item.Remarks</td>
+            @if (User.IsInRole("Admin"))
+            {
+                <td>
+                    <a asp-action="Edit" asp-controller="TaskAssigned" asp-route-id="@item.Id">Edit</a>
+                    <a asp-action="Delete" asp-controller="TaskAssigned" asp-route-id="@item.Id">Delete</a>
+                </td>
+            }
+        </tr>
+    }
+</table>
