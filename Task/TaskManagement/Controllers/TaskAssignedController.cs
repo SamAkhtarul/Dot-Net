@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskManagement.Data;
 using TaskManagement.Models;
 
-namespace TaskManagement.Controllers;
+namespace TaskManagement.TaskManagement.Controllers;
 
 public class TaskAssignedController : Controller
 {
