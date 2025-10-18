@@ -1,14 +1,12 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
-
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using TaskManagement.Data;
 using TaskManagement.Models;
 
 namespace TaskManagement.Areas.Identity.Pages.Account.Manage
@@ -17,59 +15,65 @@ namespace TaskManagement.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly TaskDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            TaskDbContext context,
+            IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string Username { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [TempData]
         public string StatusMessage { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+        public string? PicturePath { get; set; }
+
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
+            [Display(Name = "Full Name")]
+            [StringLength(25, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+            public string Name { get; set; }
+
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Profile Picture")]
+            public IFormFile? Picture { get; set; }
         }
+
 
         private async Task LoadAsync(IdentityUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
+            var employee = await _context.Employees.FirstOrDefaultAsync(e => e.Email == user.Email);
+            if (employee == null)
+            {
+                employee = new Employee { Email = user.Email, Name = userName ?? "" };
+                _context.Employees.Add(employee);
+                await _context.SaveChangesAsync();
+            }
+
             Username = userName;
+            PicturePath = employee.PicturePath;
 
             Input = new InputModel
             {
+                Name = employee.Name,
                 PhoneNumber = phoneNumber
             };
         }
@@ -100,6 +104,21 @@ namespace TaskManagement.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
+            var employee = await _context.Employees.FirstOrDefaultAsync(e => e.Email == user.Email);
+            if (employee == null)
+            {
+                return NotFound($"Unable to find employee record for user with email '{user.Email}'.");
+            }
+
+            // Update Name
+            if (Input.Name != employee.Name)
+            {
+                employee.Name = Input.Name;
+                _context.Employees.Update(employee);
+                await _context.SaveChangesAsync();
+            }
+
+            // Update Phone Number
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             if (Input.PhoneNumber != phoneNumber)
             {
@@ -109,6 +128,22 @@ namespace TaskManagement.Areas.Identity.Pages.Account.Manage
                     StatusMessage = "Unexpected error when trying to set phone number.";
                     return RedirectToPage();
                 }
+            }
+
+            // Handle Picture Upload
+            if (Input.Picture != null)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Input.Picture.FileName);
+                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Pictures", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await Input.Picture.CopyToAsync(stream);
+                }
+
+                employee.PicturePath = "/Pictures/" + fileName;
+                _context.Employees.Update(employee);
+                await _context.SaveChangesAsync();
             }
 
             await _signInManager.RefreshSignInAsync(user);

@@ -18,13 +18,14 @@
     <link rel="stylesheet" href="~/lib/adminlte/plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="~/lib/adminlte/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
     
     
     
-    @Html.Partial("_navbar.cshtml")
+    <partial name="_navbar" />
 
     
     
@@ -40,15 +41,17 @@
             @if (SignInManager.IsSignedIn(User))
             {
                 var user = _dbContext.Employees.FirstOrDefault(e => e.Email.Equals(User.Identity.Name));
-                <!-- Sidebar user panel (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="@user.PicturePath" class="img-circle elevation-2" alt="User Image">
+                @if (user != null)
+                {
+                    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                        <div class="image">
+                            @await Component.InvokeAsync("ProfilePicture")
+                        </div>
+                        <div class="info">
+                            <a href="#" class="d-block">@user.Name</a>
+                        </div>
                     </div>
-                    <div class="info">
-                        <a href="#" class="d-block">@user.Name</a>
-                    </div>
-                </div>
+                }
             }
 
             <!-- Sidebar Menu -->
@@ -60,26 +63,28 @@
                     </li>
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="User" asp-action="Index"><i class="nav-icon fas fa-users"></i>
-                                <p>Users</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="TaskList" asp-action="Index"><i class="nav-icon fas fa-tasks"></i>
-                                <p>Tasks</p></a>
-                        </li>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Super Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="TaskList" asp-action="Index"><i class="nav-icon fas fa-tasks"></i>
+                                    <p>Tasks</p></a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-controller="TaskAssigned" asp-action="Index"><i class="nav-icon fas fa-user-tag"></i>
                                 <p>Assigned Tasks</p></a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="ManageRole" asp-action="Index"><i class="nav-icon fas fa-user-cog"></i>
-                                <p>Role</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="ManageUser" asp-action="Index"><i class="nav-icon fas fa-user-edit"></i>
-                                <p>User</p></a>
-                        </li>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Super Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="ManageRole" asp-action="Index"><i class="nav-icon fas fa-user-cog"></i>
+                                    <p>Role</p></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="ManageUser" asp-action="Index"><i class="nav-icon fas fa-user-edit"></i>
+                                    <p>User</p></a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <form id="logoutForm" class="form-inline ml-auto" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                                 <button id="logout" type="submit" class="nav-link btn btn-link text-white border-0"><i class="nav-icon fas fa-sign-out-alt"></i>

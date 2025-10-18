@@ -13,7 +13,7 @@
 
         @foreach (var user in Model.Users)
         {
-            <option  value="@user.Id">@user.Name</option>
+            <option  value="@user.Id">@user.Name (@user.Email)</option>
         }
     </select>
     </div>

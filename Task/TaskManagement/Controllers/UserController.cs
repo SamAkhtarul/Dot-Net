@@ -23,7 +23,7 @@ namespace TaskManagement.Controllers
         public IActionResult Index()
         
         {
-            if (User.IsInRole("Admin,Super Admin,Employee"))
+            if (User.Identity != null && !string.IsNullOrEmpty(User.Identity.Name) && User.IsInRole("Admin,Super Admin,Employee"))
             {
                 var employees = _dbContext.Employees.Where(e => e.Email.Equals(User.Identity.Name)).ToList();
                 return View(employees);
@@ -142,6 +142,10 @@ namespace TaskManagement.Controllers
         public IActionResult Edit(Employee user)
         {
             var emp = _dbContext.Employees.FirstOrDefault(e => e.Id.Equals(user.Id));
+            if (emp == null)
+            {
+                return NotFound();
+            }
             if (ModelState.IsValid)
             {
                 if (user.Picture != null)
@@ -220,14 +224,17 @@ namespace TaskManagement.Controllers
             var user = _dbContext.Employees.Find(id);
             if (user == null) return NotFound();
 
-            var identityUser = await _userManager.FindByEmailAsync(user.Email);
-            if (identityUser != null)
+            if (user.Email != null)
             {
-                var result = await _userManager.DeleteAsync(identityUser);
-                if (!result.Succeeded)
+                var identityUser = await _userManager.FindByEmailAsync(user.Email);
+                if (identityUser != null)
                 {
-                    ModelState.AddModelError("", "Failed to delete user from identity.");
-                    return View(user);
+                    var result = await _userManager.DeleteAsync(identityUser);
+                    if (!result.Succeeded)
+                    {
+                        ModelState.AddModelError("", "Failed to delete user from identity.");
+                        return View(user);
+                    }
                 }
             }
 

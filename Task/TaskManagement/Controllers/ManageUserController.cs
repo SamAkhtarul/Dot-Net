@@ -27,7 +27,8 @@ namespace TaskManagement.Controllers
                     UserId = user.Id,
                     UserName = user.UserName ?? "",
                     Email = user.Email ?? "",
-                    RoleName = string.Join(",", roles.ToList())
+                    RoleName = string.Join(",", roles.ToList()),
+                    PhoneNumber = await _userManager.GetPhoneNumberAsync(user) ?? ""
                 });
             }
 

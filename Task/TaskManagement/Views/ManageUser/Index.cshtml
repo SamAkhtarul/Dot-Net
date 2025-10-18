@@ -24,8 +24,8 @@
            
                 <td>@role.Email</td>
                 <td>
-                    <a asp-action="AssignRole" asp-route-userId="@role.UserId">Assign/Edit Role</a> |
-                    <a asp-action="Delete" asp-route-id="@role.UserId">Delete</a>
+                    <a asp-action="AssignRole" asp-controller="ManageUser" asp-route-userId="@role.UserId" class="btn btn-warning"><i class="fas fa-user-tag"></i></a>
+                    <a asp-action="Delete" asp-controller="ManageUser" asp-route-id="@role.UserId" class="btn btn-danger"><i class="fa fa-trash"></i></a>
                 </td>
             </tr>
         }

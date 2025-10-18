@@ -1,41 +1,105 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagement.Data;
 using TaskManagement.Models;
 
 namespace TaskManagement.Controllers;
-[Authorize(Roles = "Admin,Super Admin,Employee")]
+
 public class TaskAssignedController : Controller
 {
     private readonly TaskDbContext _dbContext;
+    private readonly UserManager<IdentityUser> _userManager;
 
-    public TaskAssignedController(TaskDbContext dbContext)
+    public TaskAssignedController(TaskDbContext dbContext, UserManager<IdentityUser> userManager)
     {
         _dbContext = dbContext;
+        _userManager = userManager;
     }
 
-    public IActionResult Index()
+    [Authorize(Roles = "Admin,Super Admin,Employee")]
+    public IActionResult Index(string sortOrder, string filterStatus, string searchString)
     {
-        var assignedTasks = _dbContext.AssignedTasks.Include("Task")
-            .Include("User").OrderBy(u=>u.User.Name).ToList();
+        ViewData["CurrentSort"] = sortOrder;
+        ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+        ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+        ViewData["TaskSortParm"] = sortOrder == "Task" ? "task_desc" : "Task";
+        ViewData["DueDateSortParm"] = sortOrder == "DueDate" ? "duedate_desc" : "DueDate";
+        ViewData["CurrentFilter"] = searchString;
 
-        return View(assignedTasks);
+        var assignedTasks = _dbContext.AssignedTasks.Include("Task").Include("User").AsQueryable();
+
+        if (!String.IsNullOrEmpty(filterStatus))
+        {
+            if (Enum.TryParse<TaskManagement.Models.TaskStatus>(filterStatus, out var status))
+            {
+                assignedTasks = assignedTasks.Where(s => s.Status == status);
+            }
+        }
+
+        if (!String.IsNullOrEmpty(searchString))
+        {
+            assignedTasks = assignedTasks.Where(s => s.Task.Title.Contains(searchString) || (s.Remarks != null && s.Remarks.Contains(searchString)));
+        }
+
+        switch (sortOrder)
+        {
+            case "name_desc":
+                assignedTasks = assignedTasks.OrderByDescending(s => s.User.Name);
+                break;
+            case "Date":
+                assignedTasks = assignedTasks.OrderBy(s => s.AssignedDate);
+                break;
+            case "date_desc":
+                assignedTasks = assignedTasks.OrderByDescending(s => s.AssignedDate);
+                break;
+            case "Task":
+                assignedTasks = assignedTasks.OrderBy(s => s.Task.Title);
+                break;
+            case "task_desc":
+                assignedTasks = assignedTasks.OrderByDescending(s => s.Task.Title);
+                break;
+            case "DueDate":
+                assignedTasks = assignedTasks.OrderBy(s => s.DueDate);
+                break;
+            case "duedate_desc":
+                assignedTasks = assignedTasks.OrderByDescending(s => s.DueDate);
+                break;
+            default:
+                assignedTasks = assignedTasks.OrderBy(s => s.User.Name);
+                break;
+        }
+
+        return View(assignedTasks.ToList());
     }
 
-    public IActionResult Create()
+    [Authorize(Roles = "Admin,Super Admin")]
+    public async Task<IActionResult> Create()
     {
-        var model= new AssignedTask
+        var registeredUsers = await _userManager.Users.ToListAsync();
+        var employees = new List<Employee>();
+        foreach (var user in registeredUsers)
+        {
+            var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Email == user.Email);
+            if (employee != null)
+            {
+                employees.Add(employee);
+            }
+        }
+
+        var model = new AssignedTask
         {
             AssignedDate = DateTime.Now,
             DueDate = DateTime.Now.AddDays(7), // Default due date is 7 days from now
-            Users = _dbContext.Employees.OrderBy(u=>u.Name).ToList(),
-            Tasklist = _dbContext.Tasks.OrderBy(t=>t.Title).ToList()
+            Users = employees.OrderBy(u => u.Name).ToList(),
+            Tasklist = await _dbContext.Tasks.OrderBy(t => t.Title).ToListAsync()
         };
         return View(model);
     }
     [HttpPost]
-    public IActionResult Create(AssignedTask assignedTask, List<int> Tasklist)
+    [Authorize(Roles = "Admin,Super Admin")]
+    public async Task<IActionResult> Create(AssignedTask assignedTask, List<int> Tasklist)
     {
         if (ModelState.IsValid)
         {
@@ -51,7 +115,7 @@ public class TaskAssignedController : Controller
                     Status = assignedTask.Status,
                     Remarks = assignedTask.Remarks
                 };
-                var task = _dbContext.Tasks.Find(taskId);
+                var task = await _dbContext.Tasks.FindAsync(taskId);
                 if (task != null)
                 {
                     addnew.Task = task;
@@ -60,7 +124,7 @@ public class TaskAssignedController : Controller
                 _dbContext.AssignedTasks.Add(addnew);
               
             }
-            result = _dbContext.SaveChanges();
+            result = await _dbContext.SaveChangesAsync();
             if (result> 0)
             {
                 return RedirectToAction("Index");
@@ -75,43 +139,54 @@ public class TaskAssignedController : Controller
     .Select(e => e.ErrorMessage));
             ModelState.AddModelError(" ", message);
         }
-        assignedTask.Users = _dbContext.Employees.OrderBy(u => u.Name).ToList();
-        assignedTask.Tasklist = _dbContext.Tasks.OrderBy(t => t.Title).ToList();
-        return View(assignedTask);
-    }
 
-    [Authorize(Roles = "Admin")]
-    public IActionResult Edit(int id)
-    {
-        var assignedTask = _dbContext.AssignedTasks.Find(id);
-        if (assignedTask == null)
+        var registeredUsers = await _userManager.Users.ToListAsync();
+        var employees = new List<Employee>();
+        foreach (var user in registeredUsers)
         {
-            return NotFound();
+            var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Email == user.Email);
+            if (employee != null)
+            {
+                employees.Add(employee);
+            }
         }
-        assignedTask.Users = _dbContext.Employees.OrderBy(u => u.Name).ToList();
-        assignedTask.Tasklist = _dbContext.Tasks.OrderBy(t => t.Title).ToList();
-        return View(assignedTask);
-    }
-
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public IActionResult Edit(AssignedTask assignedTask)
-    {
-        if (ModelState.IsValid)
-        {
-            _dbContext.AssignedTasks.Update(assignedTask);
-            _dbContext.SaveChanges();
-            return RedirectToAction("Index");
-        }
-        assignedTask.Users = _dbContext.Employees.OrderBy(u => u.Name).ToList();
-        assignedTask.Tasklist = _dbContext.Tasks.OrderBy(t => t.Title).ToList();
+        assignedTask.Users = employees.OrderBy(u => u.Name).ToList();
+        assignedTask.Tasklist = await _dbContext.Tasks.OrderBy(t => t.Title).ToListAsync();
         return View(assignedTask);
     }
 
     [Authorize(Roles = "Admin,Super Admin")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Edit(int id)
     {
-        var assignedTask = _dbContext.AssignedTasks.Include(at => at.Task).Include(at => at.User).FirstOrDefault(at => at.Id == id);
+        var assignedTask = await _dbContext.AssignedTasks.FindAsync(id);
+        if (assignedTask == null)
+        { 
+            return NotFound();
+        }
+        assignedTask.Users = await _dbContext.Employees.OrderBy(u => u.Name).ToListAsync();
+        assignedTask.Tasklist = await _dbContext.Tasks.OrderBy(t => t.Title).ToListAsync();
+        return View(assignedTask);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin,Super Admin")]
+    public async Task<IActionResult> Edit(AssignedTask assignedTask)
+    {
+        if (ModelState.IsValid)
+        {
+            _dbContext.AssignedTasks.Update(assignedTask);
+            await _dbContext.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+        assignedTask.Users = await _dbContext.Employees.OrderBy(u => u.Name).ToListAsync();
+        assignedTask.Tasklist = await _dbContext.Tasks.OrderBy(t => t.Title).ToListAsync();
+        return View(assignedTask);
+    }
+
+    [Authorize(Roles = "Admin,Super Admin")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var assignedTask = await _dbContext.AssignedTasks.Include(at => at.Task).Include(at => at.User).FirstOrDefaultAsync(at => at.Id == id);
         if (assignedTask == null)
         {
             return NotFound();
@@ -120,16 +195,16 @@ public class TaskAssignedController : Controller
     }
 
     [HttpPost, ActionName("Delete")]
-    [Authorize(Roles = "Admin")]
-    public IActionResult DeleteConfirmed(int id)
+    [Authorize(Roles = "Admin,Super Admin")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var assignedTask = _dbContext.AssignedTasks.Find(id);
+        var assignedTask = await _dbContext.AssignedTasks.FindAsync(id);
         if (assignedTask == null)
         {
             return NotFound();
         }
         _dbContext.AssignedTasks.Remove(assignedTask);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return RedirectToAction("Index");
     }
 

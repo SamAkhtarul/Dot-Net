@@ -59,13 +59,12 @@
         <ul class="navbar-nav ms-auto">
             @if (User.Identity != null && User.Identity.IsAuthenticated)
             {
+                <li class="nav-item dropdown">
+                    @await Component.InvokeAsync("PendingTasks")
+                </li>
                 <!-- User Info -->
                 <li class="nav-item dropdown user-menu">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                        <img src="@pictureUrl"
-                             class="user-image rounded-circle shadow"
-                             alt="User Image"
-                             style="width:32px; height:32px; object-fit:cover;" />
                         <span class="d-none d-md-inline">
                             @User.Identity.Name
                             @if (!string.IsNullOrEmpty(roleName))
@@ -77,9 +76,7 @@
                     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                         <!-- User Header -->
                         <li class="user-header text-bg-primary">
-                            <img src="@pictureUrl"
-                                 class="rounded-circle shadow"
-                                 alt="User Image" />
+                            <img src="@pictureUrl" class="img-circle elevation-2" alt="User Image">
                             <p>
                                 @User.Identity.Name
                                 @if (!string.IsNullOrEmpty(roleName))

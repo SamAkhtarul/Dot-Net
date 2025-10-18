@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace TaskManagement.Controllers
 {
-    [Authorize(Roles = "Admin,Super Admin")]
     public class ManageRoleController : Controller
     {
         private RoleManager<IdentityRole> _roleManager;
@@ -13,18 +12,21 @@ namespace TaskManagement.Controllers
         {
             _roleManager = roleManager;
         }
+        [Authorize(Roles = "Admin,Super Admin")]
         public IActionResult Index()
         {
             // This method will return a view that lists all roles
             var roles = _roleManager.Roles.OrderBy(r=>r.Name).ToList();
             return View(roles);
         }
+        [Authorize(Roles = "Super Admin")]
         public IActionResult Create()
         {
             // This method will return a view to create a new role
             return View();
         }
         [HttpPost]
+        [Authorize(Roles = "Super Admin")]
         public async Task<IActionResult> Create(string roleName)
         {
             // This method will return a view to create a new role
@@ -46,6 +48,7 @@ namespace TaskManagement.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Super Admin")]
         public async Task<IActionResult> Edit(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
@@ -57,6 +60,7 @@ namespace TaskManagement.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Super Admin")]
         public async Task<IActionResult> Edit(string id, string roleName)
         {
             var role = await _roleManager.FindByIdAsync(id);
@@ -77,6 +81,7 @@ namespace TaskManagement.Controllers
             return View(role);
         }
 
+        [Authorize(Roles = "Super Admin")]
         public async Task<IActionResult> Delete(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
@@ -89,6 +94,7 @@ namespace TaskManagement.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Super Admin")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);

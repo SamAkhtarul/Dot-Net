@@ -55,6 +55,14 @@
                     </p>
                 </div>
             </form>
+            <div class="row mt-3">
+                <div class="col">
+                    <h5>Demo Users</h5>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('admin@gmail.com', 'Admin!23456')">Admin</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('employee@gmail.com', 'Employee!23')">Employee</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('superadmin@gmail.com', 'Superadmin!23')">SuperAdmin</button>
+                </div>
+            </div>
         </section>
     </div>
     <div class="col-md-6 col-md-offset-2">
@@ -92,6 +100,11 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        function fillCredentials(email, password) {
+            document.getElementById('Input_Email').value = email;
+            document.getElementById('passwordInput').value = password;
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const passwordInput = document.getElementById('passwordInput');
             const togglePasswordBtn = document.getElementById('togglePasswordBtn');

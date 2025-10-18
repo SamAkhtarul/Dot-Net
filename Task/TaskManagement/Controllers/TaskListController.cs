@@ -82,6 +82,10 @@ public class TaskListController : Controller
     {
 
       var obj=  _dbContext.Tasks.Find(id);
+        if (obj == null)
+        {
+            return Json(new { msg = "Task not found." });
+        }
         _dbContext.Tasks.Remove(obj);
         if (_dbContext.SaveChanges() > 0)
         {
