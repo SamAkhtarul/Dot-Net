@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using TaskManagement.Models;
+using TaskManagementApp.Models;
 
-namespace TaskManagement.Data;
+namespace TaskManagementApp.Data;
 
 public class TaskDbContext:IdentityDbContext
 {

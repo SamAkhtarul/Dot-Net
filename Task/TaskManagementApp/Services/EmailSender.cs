@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Threading.Tasks;
 
-namespace TaskManagement.Services
+namespace TaskManagementApp.Services;
 {
     public class EmailSender : IEmailSender
     {

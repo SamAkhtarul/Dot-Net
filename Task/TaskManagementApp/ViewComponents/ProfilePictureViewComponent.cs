@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using TaskManagement.Data;
+using TaskManagementApp.Data;
 
-namespace TaskManagement.ViewComponents
+namespace TaskManagementApp.ViewComponents
 {
     public class ProfilePictureViewComponent : ViewComponent
     {

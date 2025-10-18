@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskManagement.Models;
+namespace TaskManagementApp.Models;
 public enum TaskPriority
 {
     Low,

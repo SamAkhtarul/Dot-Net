@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TaskManagement.Data;
-using TaskManagement.Models;
+using TaskManagementApp.Data;
+using TaskManagementApp.Models;
 
-namespace TaskManagement.Controllers;
+namespace TaskManagementApp.Controllers;
 
 public class TaskAssignedController : Controller
 {

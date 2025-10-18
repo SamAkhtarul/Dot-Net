@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagement.Data;
-using TaskManagement.Models;
+using TaskManagementApp.Models;
 using TaskManagement.ViewModels;
 
-namespace TaskManagement.Controllers
+namespace TaskManagementApp.Controllers
 {
     public class HomeController : Controller
     {

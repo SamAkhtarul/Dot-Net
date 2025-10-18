@@ -9,7 +9,7 @@ using TaskManagement.Data;
 
 #nullable disable
 
-namespace TaskManagement.TaskManagement.Migrations
+namespace TaskManagementApp.Migrations
 {
     [DbContext(typeof(TaskDbContext))]
     [Migration("20251018034259_InitialCreate")]

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TaskManagement.ViewModels
+namespace TaskManagementApp.ViewModels
 {
     public class ProfileViewModel
     {

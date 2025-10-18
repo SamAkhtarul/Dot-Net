@@ -1,7 +1,7 @@
 
-using TaskManagement.Models;
+using TaskManagementApp.Models;
 
-namespace TaskManagement.ViewModels
+namespace TaskManagementApp.ViewModels;
 {
     public class DashboardViewModel
     {

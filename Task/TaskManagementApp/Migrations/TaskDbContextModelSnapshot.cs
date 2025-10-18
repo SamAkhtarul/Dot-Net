@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TaskManagement.Data;
+using TaskManagementApp.Data;
 
 #nullable disable
 
-namespace TaskManagement.TaskManagement.Migrations
+namespace TaskManagementApp.Migrations
 {
     [DbContext(typeof(TaskDbContext))]
     partial class TaskDbContextModelSnapshot : ModelSnapshot

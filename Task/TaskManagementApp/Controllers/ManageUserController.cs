@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using TaskManagement.ViewModels;
+using TaskManagementApp.Data;
+using TaskManagementApp.Models;
+using TaskManagementApp.ViewModels;
 
-namespace TaskManagement.Controllers
+namespace TaskManagementApp.Controllers;
 {
     [Authorize(Roles = "Admin,Super Admin")]
     public class ManageUserController : Controller

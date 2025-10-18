@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading.Tasks;
-using TaskManagement.Data;
-using TaskManagement.Models;
+using TaskManagementApp.Data;
+using TaskManagementApp.Models;
 
-namespace TaskManagement.Data
+namespace TaskManagementApp.Data
 {
     public static class DbSeeder
     {

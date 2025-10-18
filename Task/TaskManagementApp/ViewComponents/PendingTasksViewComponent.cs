@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using TaskManagement.Data;
-using TaskManagement.Models;
+using TaskManagementApp.Data;
+using TaskManagementApp.Models;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace TaskManagement.ViewComponents
+namespace TaskManagementApp.ViewComponents
 {
     public class PendingTasksViewComponent : ViewComponent
     {

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TaskManagement.Models;
+namespace TaskManagementApp.Models;
 
 public class Employee
 {

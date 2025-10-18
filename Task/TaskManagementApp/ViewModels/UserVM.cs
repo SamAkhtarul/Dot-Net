@@ -1,4 +1,4 @@
-﻿namespace TaskManagement.ViewModels
+﻿namespace TaskManagementApp.ViewModels;
 {
     public class UserVM
     {
