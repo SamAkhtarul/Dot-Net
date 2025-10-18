@@ -8,7 +8,7 @@ using TaskManagement.Models;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace TaskManagement.TaskManagement.ViewComponents
+namespace TaskManagement.ViewComponents
 {
     public class PendingTasksViewComponent : ViewComponent
     {

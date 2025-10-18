@@ -8,7 +8,7 @@ WORKDIR /src
 COPY Task/TaskManagement.sln .
 
 # Copy the project directory
-COPY Task/TaskManagement/ ./TaskManagement/
+COPY Task/TaskManagementApp/ ./TaskManagementApp/
 
 # Restore dependencies
 RUN dotnet restore "TaskManagement.sln"
@@ -17,7 +17,7 @@ RUN dotnet restore "TaskManagement.sln"
 COPY Task/ .
 
 # Publish the application
-RUN dotnet publish "TaskManagement/TaskManagement.csproj" -c Release -o /app/publish
+RUN dotnet publish "TaskManagementApp/TaskManagement.csproj" -c Release -o /app/publish
 
 # Build the runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0

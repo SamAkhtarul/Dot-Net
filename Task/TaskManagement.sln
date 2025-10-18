@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36221.1 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManagement", "TaskManagement\TaskManagement.csproj", "{7E231E3D-874D-4507-8EFC-847A5E5BE404}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManagement", "TaskManagementApp\TaskManagement.csproj", "{7E231E3D-874D-4507-8EFC-847A5E5BE404}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
