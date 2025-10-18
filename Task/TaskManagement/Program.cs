@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 var connectionString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<TaskDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddIdentity<IdentityUser,IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<TaskDbContext>().AddDefaultTokenProviders();
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, TaskManagement.Services.EmailSender>();
