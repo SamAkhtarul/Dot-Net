@@ -3,12 +3,12 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 # Copy the project files and restore dependencies
-COPY *.sln .
-COPY TaskManagement/*.csproj ./TaskManagement/
-RUN dotnet restore
+COPY Task/TaskManagement.sln .
+COPY Task/TaskManagement/ ./TaskManagement/
+RUN dotnet restore 
 
 # Copy the rest of the application code
-COPY . .
+COPY Task/ .
 WORKDIR /app/TaskManagement
 RUN dotnet publish -c Release -o out
 
