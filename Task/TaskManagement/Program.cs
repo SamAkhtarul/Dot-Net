@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 var connectionString = builder.Configuration.GetConnectionString("Default");
+Console.WriteLine($"Connection String: {connectionString}");
 if (string.IsNullOrEmpty(connectionString))
 {
     throw new InvalidOperationException("Connection string 'Default' not found.");
