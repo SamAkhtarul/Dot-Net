@@ -8,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 var connectionString = builder.Configuration.GetConnectionString("Default");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'Default' not found.");
+}
 builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseNpgsql(connectionString));
 
